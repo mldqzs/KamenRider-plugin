@@ -15,6 +15,9 @@
         body {
             width: 560px;
             background: #0b0d12;
+            /* 整体放大 2 倍再截图：元素截图按放大后尺寸取像素，物理分辨率翻倍，避免发糊 */
+            transform: scale(2);
+            transform-origin: 0 0;
         }
 
         #container {
@@ -107,11 +110,47 @@
             background: linear-gradient(90deg, #c1272d, #e0b352);
         }
 
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0 0 16px;
+        }
+
+        .meta .chip {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 5px;
+            font-size: 12px;
+            line-height: 1.2;
+            color: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(224, 179, 82, 0.28);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .meta .chip b {
+            font-weight: 600;
+            color: rgba(224, 179, 82, 0.85);
+        }
+
         .summary {
             font-size: 14px;
             line-height: 1.75;
             color: rgba(255, 255, 255, 0.80);
             word-break: break-word;
+        }
+
+        .transtip {
+            margin-top: 14px;
+            font-size: 11px;
+            line-height: 1.6;
+            color: rgba(224, 179, 82, 0.78);
+            background: rgba(224, 179, 82, 0.08);
+            border-left: 3px solid rgba(224, 179, 82, 0.55);
+            padding: 7px 10px;
+            border-radius: 4px;
         }
 
         .footer {
@@ -148,11 +187,21 @@
         </div>
         <div class="body">
             <div class="title">
-                <span class="kr">Kamen Rider</span>
+                <span class="kr">Kamen Rider{{if titleEn}} {{titleEn}}{{/if}}</span>
                 {{title}}
             </div>
             <div class="accent"></div>
+            {{if meta && meta.length}}
+            <div class="meta">
+                {{each meta item}}
+                <span class="chip"><b>{{item.label}}</b>{{item.value}}</span>
+                {{/each}}
+            </div>
+            {{/if}}
             <div class="summary">{{summary}}</div>
+            {{if transTip}}
+            <div class="transtip">{{transTip}}</div>
+            {{/if}}
             <div class="footer">
                 <span class="src">数据来源：Kamen Rider Wiki (Fandom)</span>
                 <span class="ver">KamenRider-plugin v{{pluginVersion}}</span>

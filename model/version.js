@@ -13,3 +13,12 @@ export function getPluginVersion() {
     return '未知'
   }
 }
+
+/** 读取云崽（TRSS-Yunzai）版本号：取运行根目录的 package.json */
+export function getYunzaiVersion() {
+  try {
+    return JSON.parse(fs.readFileSync(join(process.cwd(), 'package.json'), 'utf8')).version || '未知'
+  } catch {
+    return '未知'
+  }
+}

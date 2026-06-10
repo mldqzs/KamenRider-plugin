@@ -37,6 +37,12 @@ export const RIDERS = [
   { name: 'Zi-O', q: 'Kamen Rider Zi-O (Rider)' },
   // —— 昭和 Showa（代表） ——
   { name: 'Ichigo', q: 'Kamen Rider Ichigo (Rider)' },
+  { name: 'V3', q: 'Kamen Rider V3 (Rider)' },
+  { name: 'X', q: 'Kamen Rider X (Rider)' },
+  { name: 'Amazon', q: 'Kamen Rider Amazon (Rider)' },
+  { name: 'Stronger', q: 'Kamen Rider Stronger (Rider)' },
+  { name: 'Super-1', q: 'Kamen Rider Super-1 (Rider)' },
+  { name: 'ZO', q: 'Kamen Rider ZO (Rider)' },
   { name: 'BLACK', q: 'Kamen Rider Black (Rider)' },
   { name: 'BLACK RX', q: 'Kamen Rider Black RX (Rider)' },
 ]
@@ -75,6 +81,67 @@ const ALIAS = {
   '1号': 'Kamen Rider Ichigo (Rider)', '一号': 'Kamen Rider Ichigo (Rider)',
   'black': 'Kamen Rider Black (Rider)', '黑骑': 'Kamen Rider Black (Rider)',
   'rx': 'Kamen Rider Black RX (Rider)',
+  '二号': 'Kamen Rider 2', '2号': 'Kamen Rider 2', 'nigo': 'Kamen Rider 2',
+  'v3': 'Kamen Rider V3 (Rider)', '三号': 'Kamen Rider V3 (Rider)',
+  'x': 'Kamen Rider X (Rider)', 'x骑士': 'Kamen Rider X (Rider)',
+  '亚马逊': 'Kamen Rider Amazon (Rider)', 'amazon': 'Kamen Rider Amazon (Rider)',
+  '强人': 'Kamen Rider Stronger (Rider)', 'stronger': 'Kamen Rider Stronger (Rider)',
+  '超级一号': 'Kamen Rider Super-1 (Rider)', 'super1': 'Kamen Rider Super-1 (Rider)',
+  'zo': 'Kamen Rider ZO (Rider)',
+  '骑士人': 'Riderman', 'riderman': 'Riderman',
+  '真': 'Kamen Rider Shin', 'shin': 'Kamen Rider Shin',
+  'j': 'Kamen Rider J',
+  // 平成 / 令和 二号·副骑士
+  '盖兹': 'Kamen Rider Geiz', 'geiz': 'Kamen Rider Geiz',
+  '瓦尔肯': 'Kamen Rider Vulcan', 'vulcan': 'Kamen Rider Vulcan',
+  '瓦尔基里': 'Kamen Rider Valkyrie', 'valkyrie': 'Kamen Rider Valkyrie',
+  '布雷兹': 'Kamen Rider Blades', 'blades': 'Kamen Rider Blades',
+  '男爵': 'Kamen Rider Baron', 'baron': 'Kamen Rider Baron',
+  '加速': 'Kamen Rider Accel', 'accel': 'Kamen Rider Accel',
+  '马赫': 'Kamen Rider Mach', 'mach': 'Kamen Rider Mach',
+  '流星': 'Kamen Rider Meteor', 'meteor': 'Kamen Rider Meteor',
+  '比斯特': 'Kamen Rider Beast', 'beast': 'Kamen Rider Beast',
+  '斯佩克特': 'Kamen Rider Specter', 'specter': 'Kamen Rider Specter',
+  '诞生': 'Kamen Rider Birth', 'birth': 'Kamen Rider Birth',
+  'knight': 'Kamen Rider Knight',
+  'cross-z': 'Kamen Rider Cross-Z', 'crossz': 'Kamen Rider Cross-Z',
+}
+
+// 英文骑士名（去掉「Kamen Rider」前缀，小写） → 中文显示名
+// 用于卡片标题本地化。键以 toLowerCase 归一，查不到则回退英文名。
+// 同时被 glossary.js 复用，自动生成「Kamen Rider X → 假面骑士X」译后替换条目。
+export const CN_NAME = {
+  // 令和
+  'zero-one': '零一', 'saber': '圣刃', 'revi': '利维斯', 'revice': '利维斯',
+  'geats': '极狐', 'gotchard': '加查德', 'gavv': '加布',
+  // 平成
+  'kuuga': '空我', 'agito': '亚极陀', 'ryuki': '龙骑', 'faiz': '555',
+  'blade': '剑', 'hibiki': '响鬼', 'kabuto': '甲斗', 'den-o': '电王',
+  'kiva': '月骑', 'decade': '帝骑', 'double': 'W', 'ooo': '欧兹',
+  'fourze': '锻造', 'wizard': '巫骑', 'gaim': '铠武', 'drive': '驱动',
+  'ghost': '幽灵', 'ex-aid': '艾克赛德', 'build': '创骑', 'zi-o': '时王',
+  // 昭和
+  'ichigo': '一号', 'black': 'BLACK', 'black rx': 'BLACK RX',
+  '2': '二号', 'v3': 'V3', 'x': 'X', 'amazon': '亚马逊', 'stronger': '强人',
+  'super-1': '超级一号', 'zo': 'ZO', 'j': 'J', 'riderman': '骑士人', 'shin': '真',
+  // 平成 / 令和 二号·副骑士（人气）
+  'geiz': '盖兹', 'baron': '男爵', 'accel': '加速', 'mach': '马赫',
+  'meteor': '流星', 'specter': '斯佩克特', 'vulcan': '瓦尔肯',
+  'valkyrie': '瓦尔基里', 'blades': '布雷兹',
+}
+
+/**
+ * 取骑士的中文显示名：传入 Fandom 标题（可含/不含「Kamen Rider」前缀及「(Rider)」后缀）。
+ * 命中返回中文名，否则返回 null（由调用方回退英文名）。
+ */
+export function riderCnName(title) {
+  if (!title) return null
+  const key = String(title)
+    .replace(/\s*\(Rider\)\s*/i, '')
+    .replace(/^kamen\s*rider\s*/i, '')
+    .trim()
+    .toLowerCase()
+  return CN_NAME[key] || null
 }
 
 /**

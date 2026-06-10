@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>假面骑士插件帮助</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+        }
+
+        body {
+            width: 560px;
+            background: #0b0d12;
+            /* 整体放大 2 倍再截图，物理分辨率翻倍，避免发糊 */
+            transform: scale(2);
+            transform-origin: 0 0;
+        }
+
+        #container {
+            width: 560px;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(130% 70% at 50% 0%, rgba(193, 39, 45, 0.34) 0%, rgba(11, 13, 18, 0) 58%),
+                linear-gradient(160deg, #14171f 0%, #0b0d12 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .header {
+            position: relative;
+            padding: 30px 28px 22px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header .kr {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e0b352;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .header .title {
+            font-size: 30px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+            margin-top: 6px;
+        }
+
+        .header .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+            margin-top: 8px;
+        }
+
+        .header .henshin {
+            position: absolute;
+            right: 22px;
+            top: 26px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.16);
+            letter-spacing: 2px;
+        }
+
+        .list {
+            padding: 18px 22px 6px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 16px;
+            margin-bottom: 11px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-left: 3px solid #c1272d;
+            border-radius: 8px;
+        }
+
+        .item .cmd {
+            flex: none;
+            min-width: 150px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #f0d28a;
+            letter-spacing: 0.5px;
+        }
+
+        .item .desc {
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .footer {
+            margin: 8px 22px 0;
+            padding: 14px 4px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.10);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer .src {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.40);
+        }
+
+        .footer .ver {
+            font-size: 11px;
+            color: rgba(224, 179, 82, 0.78);
+            font-weight: 600;
+            text-align: right;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div class="header">
+            <div class="henshin">仮面ライダー</div>
+            <div class="kr">Kamen Rider Plugin</div>
+            <div class="title">假面骑士插件</div>
+            <div class="sub">图鉴查询 · 形态详情 · 随机娱乐</div>
+        </div>
+
+        <div class="list">
+            {{each cmds item}}
+            <div class="item">
+                <span class="cmd">{{item.cmd}}</span>
+                <span class="desc">{{item.desc}}</span>
+            </div>
+            {{/each}}
+        </div>
+
+        <div class="footer">
+            <span class="src">数据来源：Kamen Rider Wiki (Fandom)</span>
+            <span class="ver">
+                Yunzai v{{yunzaiVersion}}<br>
+                KamenRider-plugin v{{pluginVersion}}
+            </span>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,4 +1,18 @@
 # ============ 假面骑士插件 配置 ============
 enable: true        # 插件总开关
-summaryLen: 160     # 简介最大字数（超出截断）
+summaryLen: 300     # 简介最大字数（超出在句末截断）
 dailyEnable: true   # 「每日一骑」开关
+
+# ---- 简介翻译（数据源为英文 Wiki，国内用户建议开启）----
+translate: true     # 是否把英文简介翻译成中文
+# 翻译服务：
+#   mymemory（默认）：免注册、免 key，匿名约 5000 字/天，国内可直连，开箱即用。
+#   baidu：质量更好，但需到 https://fanyi-api.baidu.com/ 申请并填入下方 appid/key。
+# 任一 provider 失败会自动尝试另一个，全部失败则回退英文原文，不影响其他功能。
+translateProvider: mymemory
+baiduAppid: ''      # 百度翻译 APP ID（仅用 baidu 时需要）
+baiduKey: ''        # 百度翻译 密钥（仅用 baidu 时需要）
+
+# ---- 本地缓存（按 pageid 缓存翻译后简介+图片+信息框，省翻译额度、提速）----
+cacheEnable: true   # 是否启用本地缓存
+cacheTTL: 30        # 缓存有效期（天），过期后重新抓取翻译

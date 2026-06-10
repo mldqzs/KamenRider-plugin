@@ -3,5 +3,9 @@
   "version": "1.0.0",
   "description": "Yunzai-bot V3 插件 - 假面骑士图鉴查询与娱乐",
   "type": "module",
-  "author": "mldqzs"
+  "author": "mldqzs",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "yaml": "^2.9.0"
+  }
 }

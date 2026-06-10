@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>假面骑士详情</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+        }
+
+        body {
+            width: 600px;
+            background: #0b0d12;
+            /* 整体放大 2 倍再截图，物理分辨率翻倍，避免发糊 */
+            transform: scale(2);
+            transform-origin: 0 0;
+        }
+
+        #container {
+            width: 600px;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(120% 60% at 50% 0%, rgba(193, 39, 45, 0.30) 0%, rgba(11, 13, 18, 0) 55%),
+                linear-gradient(160deg, #14171f 0%, #0b0d12 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 26px 26px 22px;
+        }
+
+        .head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+            padding-bottom: 14px;
+        }
+
+        .head .name {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .head .name .kr {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0b352;
+            letter-spacing: 3px;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .head .badge {
+            font-size: 12px;
+            color: #fff;
+            background: rgba(193, 39, 45, 0.92);
+            padding: 5px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin: 14px 0 4px;
+        }
+
+        .meta .chip {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(224, 179, 82, 0.28);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .meta .chip b {
+            font-weight: 600;
+            color: rgba(224, 179, 82, 0.85);
+            margin-right: 4px;
+        }
+
+        .sec {
+            margin-top: 20px;
+        }
+
+        .sec .label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 11px;
+        }
+
+        .sec .label::before {
+            content: '';
+            width: 4px;
+            height: 15px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, #c1272d, #e0b352);
+        }
+
+        .sec .label .cnt {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.40);
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tags .tag {
+            font-size: 13px;
+            line-height: 1.3;
+            color: rgba(255, 255, 255, 0.86);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            padding: 6px 11px;
+            border-radius: 7px;
+        }
+
+        .sec.fin .tag {
+            color: #f0d28a;
+            background: rgba(224, 179, 82, 0.10);
+            border-color: rgba(224, 179, 82, 0.30);
+        }
+
+        .empty {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .footer {
+            margin-top: 22px;
+            padding-top: 13px;
+            border-top: 1px solid rgba(255, 255, 255, 0.10);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer .src {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.40);
+        }
+
+        .footer .ver {
+            font-size: 11px;
+            color: rgba(224, 179, 82, 0.75);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div class="head">
+            <div class="name">
+                <span class="kr">Kamen Rider{{if titleEn}} {{titleEn}}{{/if}}</span>
+                {{title}}
+            </div>
+            <div class="badge">骑士详情</div>
+        </div>
+
+        {{if meta && meta.length}}
+        <div class="meta">
+            {{each meta item}}
+            <span class="chip"><b>{{item.label}}</b>{{item.value}}</span>
+            {{/each}}
+        </div>
+        {{/if}}
+
+        <div class="sec">
+            <div class="label">变身器 / 核心 {{if devices.length}}<span class="cnt">{{devices.length}}</span>{{/if}}</div>
+            {{if devices.length}}
+            <div class="tags">{{each devices d}}<span class="tag">{{d}}</span>{{/each}}</div>
+            {{else}}<div class="empty">暂无数据</div>{{/if}}
+        </div>
+
+        {{if weapons.length}}
+        <div class="sec">
+            <div class="label">武器 <span class="cnt">{{weapons.length}}</span></div>
+            <div class="tags">{{each weapons w}}<span class="tag">{{w}}</span>{{/each}}</div>
+        </div>
+        {{/if}}
+
+        {{if vehicles.length}}
+        <div class="sec">
+            <div class="label">载具 <span class="cnt">{{vehicles.length}}</span></div>
+            <div class="tags">{{each vehicles v}}<span class="tag">{{v}}</span>{{/each}}</div>
+        </div>
+        {{/if}}
+
+        <div class="sec">
+            <div class="label">形态 {{if forms.length}}<span class="cnt">{{forms.length}}</span>{{/if}}</div>
+            {{if forms.length}}
+            <div class="tags">{{each forms f}}<span class="tag">{{f}}</span>{{/each}}</div>
+            {{else}}<div class="empty">暂无可解析的形态</div>{{/if}}
+        </div>
+
+        <div class="sec fin">
+            <div class="label">终结技 {{if finishers.length}}<span class="cnt">{{finishers.length}}</span>{{/if}}</div>
+            {{if finishers.length}}
+            <div class="tags">{{each finishers x}}<span class="tag">{{x}}</span>{{/each}}</div>
+            {{else}}<div class="empty">该词条未提供结构化终结技（多见于早期作品）</div>{{/if}}
+        </div>
+
+        <div class="footer">
+            <span class="src">数据来源：Kamen Rider Wiki (Fandom)</span>
+            <span class="ver">KamenRider-plugin v{{pluginVersion}}</span>
+        </div>
+    </div>
+</body>
+
+</html>
