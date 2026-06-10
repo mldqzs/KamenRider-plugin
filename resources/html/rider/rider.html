@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>假面骑士图鉴</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+        }
+
+        body {
+            width: 560px;
+            background: #0b0d12;
+        }
+
+        #container {
+            width: 560px;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(120% 80% at 50% 0%, rgba(193, 39, 45, 0.35) 0%, rgba(11, 13, 18, 0) 60%),
+                linear-gradient(160deg, #14171f 0%, #0b0d12 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            background: #05060a;
+        }
+
+        .hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            display: block;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(11, 13, 18, 0) 45%, rgba(11, 13, 18, 0.95) 100%);
+        }
+
+        .hero .tag {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 2;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: #fff;
+            background: rgba(193, 39, 45, 0.92);
+            padding: 5px 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(193, 39, 45, 0.5);
+        }
+
+        .hero .noimg {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.12);
+        }
+
+        .body {
+            position: relative;
+            z-index: 2;
+            padding: 0 26px 22px;
+            margin-top: -42px;
+        }
+
+        .title {
+            font-size: 30px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+        }
+
+        .title .kr {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e0b352;
+            letter-spacing: 3px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .accent {
+            width: 56px;
+            height: 4px;
+            margin: 14px 0 16px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #c1272d, #e0b352);
+        }
+
+        .summary {
+            font-size: 14px;
+            line-height: 1.75;
+            color: rgba(255, 255, 255, 0.80);
+            word-break: break-word;
+        }
+
+        .footer {
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.10);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer .src {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.40);
+        }
+
+        .footer .ver {
+            font-size: 11px;
+            color: rgba(224, 179, 82, 0.75);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div class="hero">
+            {{if image}}
+            <img src="{{image}}" alt="">
+            {{else}}
+            <div class="noimg">仮面ライダー</div>
+            {{/if}}
+            <div class="tag">{{tag}}</div>
+        </div>
+        <div class="body">
+            <div class="title">
+                <span class="kr">Kamen Rider</span>
+                {{title}}
+            </div>
+            <div class="accent"></div>
+            <div class="summary">{{summary}}</div>
+            <div class="footer">
+                <span class="src">数据来源：Kamen Rider Wiki (Fandom)</span>
+                <span class="ver">KamenRider-plugin v{{pluginVersion}}</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
