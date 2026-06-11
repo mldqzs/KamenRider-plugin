@@ -41,6 +41,7 @@ export class KRHelp extends plugin {
       '━━━━━━━━━━━━',
       ...CMDS.map(c => `${c.cmd}　${c.desc}`),
       '━━━━━━━━━━━━',
+      '💡 副骑士/冷门骑士用英文名搜索更准确（如 Geiz、Ouja、Buffa），中文译名可能查不到或匹配偏差。',
       '数据来源：Kamen Rider Wiki (Fandom)',
       `版本：v${getPluginVersion()}`,
     ].join('\n')
