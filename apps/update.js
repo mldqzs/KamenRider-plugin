@@ -58,7 +58,7 @@ export class KRUpdate extends plugin {
 
     let stdout = ''
     try {
-      const ret = await this._git('git pull --no-rebase')
+      const ret = await this._git(`git pull ${await this._pullTarget()} --no-rebase`)
       stdout = `${ret.stdout || ''}${ret.stderr || ''}`
     } catch (err) {
       const msg = `${err?.stdout || ''}${err?.stderr || ''}${err?.message || ''}`
@@ -108,6 +108,31 @@ export class KRUpdate extends plugin {
     } catch {
       return ''
     }
+  }
+
+  /**
+   * 解析 pull 目标，避免依赖分支 upstream：
+   *  1) 若分支已配 upstream → 返回 ''（让 git pull 走默认 upstream）
+   *  2) 否则显式 <remote> <branch>：remote 优先 origin，没有则取第一个
+   */
+  async _pullTarget() {
+    try {
+      await this._git('git rev-parse --abbrev-ref --symbolic-full-name @{u}')
+      return '' // 有 upstream，直接 git pull
+    } catch {
+      // 无 upstream，继续解析
+    }
+    let branch = 'HEAD'
+    try {
+      branch = (await this._git('git rev-parse --abbrev-ref HEAD')).stdout.trim() || 'HEAD'
+    } catch {}
+    let remotes = []
+    try {
+      remotes = (await this._git('git remote')).stdout.split('\n').map(s => s.trim()).filter(Boolean)
+    } catch {}
+    const remote = remotes.includes('origin') ? 'origin' : remotes[0]
+    if (!remote || branch === 'HEAD') return '' // 兜底：交给 git 默认行为
+    return `${remote} ${branch}`
   }
 
   _git(cmd) {
