@@ -19,7 +19,8 @@ export class KRUpdate extends plugin {
       name: '假面骑士更新',
       dsc: '更新假面骑士插件',
       event: 'message',
-      priority: 600,
+      // 优先级高于查询(600)，避免 #假面骑士更新 被查询的万能正则当成骑士名
+      priority: 500,
       rule: [
         {
           reg: '^#?(假面)?骑士(插件)?(强制)?更新$',
