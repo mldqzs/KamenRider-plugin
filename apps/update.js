@@ -1,25 +1,28 @@
 import plugin from '../../../lib/plugins/plugin.js'
-import { promisify } from 'node:util'
-import { exec as _exec } from 'node:child_process'
-import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'node:path'
-import fs from 'node:fs'
-import { getConfig } from '../model/config.js'
-import { getPluginVersion } from '../model/version.js'
+import { createRequire } from 'module'
+import _ from 'lodash'
+import { Restart } from '../../other/restart.js'
+import common from '../../../lib/common/common.js'
 
-const exec = promisify(_exec)
+const require = createRequire(import.meta.url)
+const { exec } = require('child_process')
 
-const _dir = dirname(fileURLToPath(import.meta.url))
-const pluginRoot = join(_dir, '..')          // 插件根目录
-const pluginName = '假面骑士插件'
+const pluginName = 'KamenRider-plugin'
+const _path = `./plugins/${pluginName}/`
 
+// 是否在更新中
+let uping = false
+
+/**
+ * 假面骑士插件更新（格式对齐云崽生态通用更新插件）
+ */
 export class KRUpdate extends plugin {
   constructor() {
     super({
       name: '假面骑士更新',
       dsc: '更新假面骑士插件',
       event: 'message',
-      // 优先级高于查询(600)，避免 #假面骑士更新 被查询的万能正则当成骑士名
+      // 高于查询(600)，避免 #假面骑士更新 被查询的万能正则吞掉
       priority: 500,
       rule: [
         {
@@ -29,150 +32,182 @@ export class KRUpdate extends plugin {
         },
         {
           reg: '^#?(假面)?骑士(插件)?更新(日志|记录|历史)$',
-          fnc: 'changelog',
+          fnc: 'updateLog',
         },
       ],
     })
   }
 
-  /** 查看最近更新日志（所有人可用） */
-  async changelog(e) {
-    if (getConfig().enable === false) return false
+  /** 更新假面骑士插件 */
+  async update() {
+    if (!this.e.isMaster) return false
 
-    if (!fs.existsSync(join(pluginRoot, '.git'))) {
-      await e.reply(`${pluginName}不是通过 git 安装的，没有更新日志。`)
-      return true
+    if (uping) {
+      await this.reply('已有命令更新中..请勿重复操作')
+      return
     }
 
-    let log = ''
-    try {
-      const { stdout } = await this._git('git log -20 --pretty=format:"%s  (%cr)"')
-      log = (stdout || '').trim()
-    } catch (err) {
-      logger.error(`[假面骑士] 读取更新日志失败：${err?.message || err}`)
-      await e.reply(`读取更新日志失败：${this._trim(`${err?.stderr || ''}${err?.message || ''}`)}`)
-      return true
-    }
+    if (!(await this.checkGit())) return
 
-    if (!log) {
-      await e.reply(`${pluginName}暂无更新日志~`)
-      return true
-    }
+    const isForce = this.e.msg.includes('强制')
 
-    const msg = `📖 ${pluginName} 更新日志（当前 v${getPluginVersion()}）\n\n${log}`
-    await e.reply(msg)
-    return true
+    await this.runUpdate(isForce)
+
+    // 更新成功则重启生效
+    if (this.isUp) {
+      setTimeout(() => this.restart(), 2000)
+    }
   }
 
-  async update(e) {
-    if (getConfig().enable === false) return false
+  restart() {
+    new Restart(this.e).restart()
+  }
 
-    // 必须是 git 仓库才能拉取更新
-    if (!fs.existsSync(join(pluginRoot, '.git'))) {
-      await e.reply(`${pluginName}不是通过 git 安装的，无法自动更新。请手动重新克隆安装。`)
-      return true
-    }
-
-    const isForce = /强制/.test(e.msg || '')
-    const oldVer = getPluginVersion()
-    const oldHash = await this._head()
-
-    await e.reply(`开始${isForce ? '强制' : ''}更新${pluginName}……`)
-
-    // 强制更新：丢弃本地改动后再拉取
+  async runUpdate(isForce) {
+    let command = `git -C ${_path} pull --no-rebase`
     if (isForce) {
-      try {
-        await this._git('git checkout . --')
-      } catch (err) {
-        logger.error(`[假面骑士] 重置本地改动失败：${err?.message || err}`)
-      }
+      command = `git -C ${_path} checkout . && ${command}`
+      await this.reply('正在执行强制更新操作，请稍等')
+    } else {
+      await this.reply('正在执行更新操作，请稍等')
     }
 
-    let stdout = ''
-    try {
-      const ret = await this._git(`git pull ${await this._pullTarget()} --no-rebase`)
-      stdout = `${ret.stdout || ''}${ret.stderr || ''}`
-    } catch (err) {
-      const msg = `${err?.stdout || ''}${err?.stderr || ''}${err?.message || ''}`
-      logger.error(`[假面骑士] 更新失败：${msg}`)
-      let tip = `${pluginName}更新失败！\n错误信息：${this._trim(msg)}`
-      if (/Your local changes|Please commit|overwritten by merge|冲突|conflict/i.test(msg)) {
-        tip += '\n\n本地文件有改动导致冲突，可发送【#假面骑士强制更新】丢弃改动后重试。'
-      }
-      await e.reply(tip)
-      return true
+    // 记录更新前的 commitId，用于截取本次新增的更新日志
+    this.oldCommitId = await this.getCommitId(pluginName)
+    uping = true
+    const ret = await this.execSync(command)
+    uping = false
+
+    if (ret.error) {
+      logger.mark(`${this.e.logFnc} 更新失败：${pluginName}`)
+      await this.gitErr(ret.error, ret.stdout)
+      return false
     }
 
-    // 已是最新
-    if (/Already up[ -]to[ -]date|已经是最新/i.test(stdout)) {
-      await e.reply(`${pluginName}已是最新版本~\n当前版本：v${oldVer}`)
-      return true
+    const time = await this.getTime(pluginName)
+
+    if (/(Already up[ -]to[ -]date|已经是最新)/.test(ret.stdout)) {
+      await this.reply(`${pluginName} 已经是最新版本\n最后更新时间：${time}`)
+    } else {
+      await this.reply(`${pluginName} 更新成功\n最后更新时间：${time}`)
+      this.isUp = true
+      const log = await this.getLog(pluginName)
+      if (log) await this.reply(log)
     }
 
-    const newVer = getPluginVersion()
-    const log = await this._log(oldHash)
-    let msg = `${pluginName}更新成功！`
-    msg += newVer !== oldVer ? `\n版本：v${oldVer} → v${newVer}` : `\n当前版本：v${newVer}`
-    if (log) msg += `\n\n更新内容：\n${log}`
-    msg += '\n\n更新已完成，请发送【#重启】使插件生效。'
-    await e.reply(msg)
+    logger.mark(`${this.e.logFnc} 最后更新时间：${time}`)
     return true
   }
 
-  /** 取当前 HEAD 短哈希 */
-  async _head() {
+  /** 获取更新日志（合并转发） */
+  async getLog(plugin = pluginName) {
+    const cm = `git -C ./plugins/${plugin}/ log -20 --oneline --pretty=format:"%h||[%cd] %s" --date=format:"%m-%d %H:%M"`
+
+    let logAll
     try {
-      const { stdout } = await this._git('git rev-parse --short HEAD')
-      return (stdout || '').trim()
-    } catch {
-      return ''
+      logAll = (await this.execSync(cm)).stdout
+    } catch (error) {
+      logger.error(error.toString())
+      await this.reply(error.toString())
+      return false
     }
+
+    if (!logAll) return false
+
+    logAll = logAll.trim().split('\n')
+
+    const log = []
+    for (let str of logAll) {
+      str = str.split('||')
+      // updateLog 查看全部；update 只取本次新增（到上次 commitId 为止）
+      if (this.oldCommitId && str[0] == this.oldCommitId) break
+      if (str[1] && str[1].includes('Merge branch')) continue
+      if (str[1]) log.push(str[1])
+    }
+
+    const line = log.length
+    if (line <= 0) return ''
+
+    const end = '更多详细信息，请前往 Gitee/GitHub 查看'
+    return common.makeForwardMsg(this.e, [log.join('\n\n'), end], `${pluginName} 更新日志，共 ${line} 条`)
   }
 
-  /** 列出从 since 到现在的提交（标题 + 相对时间） */
-  async _log(since) {
-    if (!since) return ''
+  /** 查看更新日志 */
+  async updateLog() {
+    this.oldCommitId = '' // 展示全部记录
+    const log = await this.getLog()
+    if (!log) {
+      await this.reply('暂无更新日志~')
+      return
+    }
+    await this.reply(log)
+  }
+
+  async getCommitId(plugin = '') {
+    const ret = await this.execSync(`git -C ./plugins/${plugin}/ rev-parse --short HEAD`)
+    return _.trim(ret.stdout)
+  }
+
+  async getTime(plugin = '') {
+    let time = ''
     try {
-      const { stdout } = await this._git(
-        `git log ${since}..HEAD --pretty=format:"%s  (%cr)" -20`
+      const ret = await this.execSync(
+        `git -C ./plugins/${plugin}/ log -1 --pretty=format:"%cd" --date=format:"%m-%d %H:%M"`,
       )
-      return (stdout || '').trim()
-    } catch {
-      return ''
+      time = _.trim(ret.stdout)
+    } catch (error) {
+      logger.error(error.toString())
+      time = '获取时间失败'
     }
+    return time
   }
 
-  /**
-   * 解析 pull 目标，避免依赖分支 upstream：
-   *  1) 若分支已配 upstream → 返回 ''（让 git pull 走默认 upstream）
-   *  2) 否则显式 <remote> <branch>：remote 优先 origin，没有则取第一个
-   */
-  async _pullTarget() {
-    try {
-      await this._git('git rev-parse --abbrev-ref --symbolic-full-name @{u}')
-      return '' // 有 upstream，直接 git pull
-    } catch {
-      // 无 upstream，继续解析
+  /** 处理更新失败 */
+  async gitErr(err, stdout) {
+    const msg = '更新失败！'
+    const errMsg = err.toString()
+    stdout = (stdout || '').toString()
+
+    if (errMsg.includes('Timed out')) {
+      const remote = errMsg.match(/'(.+?)'/g)?.[0]?.replace(/'/g, '') || ''
+      await this.reply(`${msg}\n连接超时：${remote}`)
+      return
     }
-    let branch = 'HEAD'
-    try {
-      branch = (await this._git('git rev-parse --abbrev-ref HEAD')).stdout.trim() || 'HEAD'
-    } catch {}
-    let remotes = []
-    try {
-      remotes = (await this._git('git remote')).stdout.split('\n').map(s => s.trim()).filter(Boolean)
-    } catch {}
-    const remote = remotes.includes('origin') ? 'origin' : remotes[0]
-    if (!remote || branch === 'HEAD') return '' // 兜底：交给 git 默认行为
-    return `${remote} ${branch}`
+
+    if (/Failed to connect|unable to access/.test(errMsg)) {
+      const remote = errMsg.match(/'(.+?)'/g)?.[0]?.replace(/'/g, '') || ''
+      await this.reply(`${msg}\n连接失败：${remote}`)
+      return
+    }
+
+    if (errMsg.includes('be overwritten by merge')) {
+      await this.reply(`${msg}存在冲突：\n${errMsg}\n请解决冲突后再更新，或发送 #假面骑士强制更新 放弃本地修改`)
+      return
+    }
+
+    if (stdout.includes('CONFLICT')) {
+      await this.reply([msg + '存在冲突\n', errMsg, stdout, '\n请解决冲突后再更新，或发送 #假面骑士强制更新 放弃本地修改'])
+      return
+    }
+
+    await this.reply([errMsg, stdout])
   }
 
-  _git(cmd) {
-    return exec(cmd, { cwd: pluginRoot, windowsHide: true })
+  /** 异步执行命令 */
+  execSync(cmd) {
+    return new Promise(resolve => {
+      exec(cmd, { windowsHide: true }, (error, stdout, stderr) => {
+        resolve({ error, stdout, stderr })
+      })
+    })
   }
 
-  _trim(s = '', max = 500) {
-    s = String(s).trim()
-    return s.length > max ? s.slice(0, max) + '……' : s
+  async checkGit() {
+    const ret = await this.execSync('git --version')
+    if (!ret.stdout || !ret.stdout.includes('git version')) {
+      await this.reply('请先安装 git')
+      return false
+    }
+    return true
   }
 }
