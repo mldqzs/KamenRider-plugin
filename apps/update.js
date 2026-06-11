@@ -1,5 +1,4 @@
 import plugin from '../../../lib/plugins/plugin.js'
-import { createRequire } from 'node:module'
 import { promisify } from 'node:util'
 import { exec as _exec } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -9,7 +8,6 @@ import { getConfig } from '../model/config.js'
 import { getPluginVersion } from '../model/version.js'
 
 const exec = promisify(_exec)
-const require = createRequire(import.meta.url)
 
 const _dir = dirname(fileURLToPath(import.meta.url))
 const pluginRoot = join(_dir, '..')          // 插件根目录
@@ -28,8 +26,41 @@ export class KRUpdate extends plugin {
           fnc: 'update',
           permission: 'master',
         },
+        {
+          reg: '^#?(假面)?骑士(插件)?更新(日志|记录|历史)$',
+          fnc: 'changelog',
+        },
       ],
     })
+  }
+
+  /** 查看最近更新日志（所有人可用） */
+  async changelog(e) {
+    if (getConfig().enable === false) return false
+
+    if (!fs.existsSync(join(pluginRoot, '.git'))) {
+      await e.reply(`${pluginName}不是通过 git 安装的，没有更新日志。`)
+      return true
+    }
+
+    let log = ''
+    try {
+      const { stdout } = await this._git('git log -20 --pretty=format:"%s  (%cr)"')
+      log = (stdout || '').trim()
+    } catch (err) {
+      logger.error(`[假面骑士] 读取更新日志失败：${err?.message || err}`)
+      await e.reply(`读取更新日志失败：${this._trim(`${err?.stderr || ''}${err?.message || ''}`)}`)
+      return true
+    }
+
+    if (!log) {
+      await e.reply(`${pluginName}暂无更新日志~`)
+      return true
+    }
+
+    const msg = `📖 ${pluginName} 更新日志（当前 v${getPluginVersion()}）\n\n${log}`
+    await e.reply(msg)
+    return true
   }
 
   async update(e) {
