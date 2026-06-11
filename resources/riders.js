@@ -149,8 +149,8 @@ const ALIAS = {
   '最高': 'Kamen Rider Saikou', '赛高': 'Kamen Rider Saikou', '斯拉修': 'Kamen Rider Slash',
   '维斯': 'Kamen Rider Vice', '利甫': 'Kamen Rider Live', '伊维尔': 'Kamen Rider Evil',
   '迪蒙斯': 'Kamen Rider Demons', '贞德': 'Kamen Rider Jeanne', '阿基莱拉': 'Kamen Rider Aguilera',
-  '水牛': 'Kamen Rider Buffa', '巴法': 'Kamen Rider Buffa', '格莱尔': 'Kamen Rider Glare',
-  '大亨': 'Kamen Rider Tycoon', '泰孔': 'Kamen Rider Tycoon', '娜高': 'Kamen Rider Na-Go',
+  '霸牛': 'Kamen Rider Buffa', '巴法': 'Kamen Rider Buffa', '格莱尔': 'Kamen Rider Glare',
+  '太狸': 'Kamen Rider Tycoon', '泰孔': 'Kamen Rider Tycoon', '娜高': 'Kamen Rider Na-Go',
 }
 
 // 英文骑士名（去掉「Kamen Rider」前缀，小写） → 中文显示名
@@ -191,7 +191,7 @@ export const CN_NAME = {
   'jin': '迅', 'thouser': '千骑', 'abaddon': '阿巴顿',
   'espada': '艾斯帕达', 'buster': '巴斯特', 'kenzan': '剑斩', 'calibur': '卡利巴', 'falchion': '法尔西翁',
   'vice': '维斯', 'live': '利甫', 'evil': '伊维尔', 'demons': '迪蒙斯', 'jeanne': '贞德', 'aguilera': '阿基莱拉',
-  'buffa': '水牛', 'glare': '格莱尔',
+  'buffa': '霸牛', 'tycoon': '太狸', 'na-go': '娜高', 'glare': '格莱尔',
 }
 
 /**
