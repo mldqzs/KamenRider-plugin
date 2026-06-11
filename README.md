@@ -29,7 +29,7 @@
 git clone --depth=1 https://github.com/mldqzs/KamenRider-plugin ./plugins/KamenRider-plugin
 
 # Gitee
-git clone --depth=1 https://gitee.com/aayhg/KamenRider-plugin ./plugins/KamenRider-plugin
+git clone --depth=1 https://gitee.com/aayhg/kamen-rider-plugin ./plugins/KamenRider-plugin
 ```
 
 再在根目录安装依赖并重启：
@@ -37,6 +37,16 @@ git clone --depth=1 https://gitee.com/aayhg/KamenRider-plugin ./plugins/KamenRid
 ```bash
 pnpm install
 ```
+
+> 请务必用 `git clone` 安装（如上），这样插件目录是带远程上游的 git 仓库，云崽本体的更新指令才能识别并更新它。
+
+## 更新方式
+
+本插件是标准 git 仓库，下列方式均可更新：
+
+- `#假面骑士更新` —— 更新本插件（主人专用，`#假面骑士强制更新` 可丢弃本地改动）
+- `#假面骑士更新日志` —— 查看最近更新记录
+- 云崽本体指令同样适用：`#全部更新` 会一并更新本插件；`#更新KamenRider-plugin`、`#强制更新KamenRider-plugin` 可单独更新（注意此处用插件目录名，非中文名）
 
 ## 翻译配置
 
