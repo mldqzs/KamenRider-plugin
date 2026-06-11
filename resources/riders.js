@@ -92,7 +92,7 @@ const ALIAS = {
   '真': 'Kamen Rider Shin', 'shin': 'Kamen Rider Shin',
   'j': 'Kamen Rider J',
   // 平成 / 令和 二号·副骑士
-  '盖兹': 'Kamen Rider Geiz', 'geiz': 'Kamen Rider Geiz',
+  '盖兹': 'Kamen Rider Geiz', '盖茨': 'Kamen Rider Geiz', 'geiz': 'Kamen Rider Geiz',
   '瓦尔肯': 'Kamen Rider Vulcan', 'vulcan': 'Kamen Rider Vulcan',
   '瓦尔基里': 'Kamen Rider Valkyrie', 'valkyrie': 'Kamen Rider Valkyrie',
   '布雷兹': 'Kamen Rider Blades', 'blades': 'Kamen Rider Blades',
